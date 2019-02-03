@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 
 <p> <%= liste %></p>
+<p>langue connue:</p>
+<ul>
+    <% connu.forEach(function (a) { %>
+    <li>
+        <%= a.langue%>
+    </li>
+    <% }); %>
+
+</ul>
 <a href="/formulaire">Ajouter une langue</a>
 
 <a href="/suppression">Delete une langue</a>
