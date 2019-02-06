@@ -1,114 +1,80 @@
 // index.js
 
-'use strict';
+"use strict";
 
+//Import
 
+const Store = require("./store.js");
+const koa = require("koa");
+const koaBody = require("koa-body");
+const koaRouter = require("koa-router");
 
+//const render = require("koa-ejs");
+const path = require("path");
+const { createLogger, format, transports } = require("winston");
 
-const koa = require('koa')
-const koaBody = require('koa-body');
-const koaRouter = require('koa-router')
-const render = require('koa-ejs')
-const path = require('path')
+//Const variables
+const app = new koa();
+const router = new koaRouter();
 
+const logger = createLogger({
+  level: "debug",
+  format: format.combine(format.colorize(), format.simple()),
+  // You can also comment out the line above and uncomment the line below for JSON format
+  // format: format.json(),
+  transports: [new transports.Console()]
+});
 
-const app = new koa()
-const router = new koaRouter()
+//list which contains all the language know by the server
+let list = [];
+let str = new Store();
 
-//liste qui contient toutes les façons de dire bonjour dans les langues connues
-var list=[]
-list.push({
-  langue : 'Inconnu',
-  hello : 'Je ne connais pas cette langue'
-  })
-
-//Fonction qui permet de regarder si une langue est déja dans la liste des langues connues 
-function dansListe (lister,lgs) {
-	var res = true
-	for( var k=0 ; k<lister.length ; k++){
-		if(lister[k].langue==lgs){
-			res=false;
-		}
-	}
-	return res;
-}
-
-render(app, {
-  root: path.join(__dirname, 'views'),
-  layout : false,
-  viewExt: 'html',
+//That was the part for the views but I think we don't have to use it
+/*render(app, {
+  root: path.join(__dirname, "views"),
+  layout: false,
+  viewExt: "html",
   cache: false,
   debug: true
-})
+});*/
 
-//Methode get qui permet de dire bonjour dans la langue voulu
-router.get('koala','/hello', (ctx) => {
-  let lg = ctx.request.query.langue
-  let i =0
-  let s=0
-  while(i<list.length){
-    if(list[i].langue == lg){
-      s=i
-    }
-    i++
-  }
-  return ctx.render('index', {
-    liste : list[s].hello,
-    connu : list
-   
-  })
-})
+//Methode get qui permet de dire bonjour dans la langue voulue
+router.get("koala", "/hello", ctx => {
+  let lg = ctx.request.query.langue;
+  let rep = str.getHello(lg);
+  ctx.response.status = rep[0];
+  ctx.body = rep[1];
+
+  return ctx;
+});
 
 //Méthode get pour récupérer la page d'ajout d'une langue
-router.get('koala','/formulaire', (ctx) => {
-  return ctx.render('formulaire')
-  })
+/*router.get("koala", "/formulaire", ctx => {
+  return ctx.render("formulaire");
+});*/
 
 //Méthode get pour récupérer la page de suppression d'une langue
-router.get('koala','/suppression', (ctx) => {
-  return ctx.render('suppression')
-  })
+/*router.get("koala", "/suppression", ctx => {
+  return ctx.render("suppression");
+});*/
 
 //Méthode post qui permet d'apprendre une nouvelle langue
-router.post('koala','/hello', koaBody(), (ctx) => {
-  if(dansListe(list,ctx.request.body.langue)){
-	  list.push({
-	  langue : ctx.request.body.langue,
-	  hello : ctx.request.body.hello
-	  })
-  }
-  return ctx.render('index', {
-    liste : list[0].hello,
-    connu : list
-   
-  })
-})
+router.post("koala", "/hello", koaBody(), ctx => {
+  let rep = str.addHello(ctx.request.body.langue, ctx.request.body.hello);
+  ctx.response.status = rep[0];
+  ctx.response.body = rep[1];
+  return ctx;
+});
 
 //Méthode post qui permet de supprimer une langue
-router.post('koala','/sup', koaBody(), (ctx) => {
-  let lg = ctx.request.body.langue
-  console.log(lg)
-  let j=0
-  while(j<list.length){
-    if(list[j].langue == lg){
-      list.splice(j ,1)
-    }
-    j++
-  }
-  return ctx.render('index', {
-    liste : list[0].hello,
-    connu : list
-   
-  })
-})
+router.delete("koala", "/hello", ctx => {
+  let lg = ctx.request.query.langue;
+  let rep = str.deleteHello(lg);
+  ctx.response.status = rep[0];
+  ctx.response.body = rep[1];
+  return ctx;
+});
 
-app.use(router.routes())
-    .use(router.allowedMethods())
+app.use(router.routes()).use(router.allowedMethods());
 
-
-
-
-
-
-
-app.listen(1234)
+app.listen(1234);
