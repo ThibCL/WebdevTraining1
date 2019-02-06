@@ -20,9 +20,9 @@ class Store {
         langue: lang,
         hello: hello
       });
-      return [200, "langue ajoutée"];
+      return [200, "language added"];
     } else {
-      return [500, "langue déja connue"];
+      return [500, "language already known"];
     }
   }
 
@@ -36,7 +36,7 @@ class Store {
       i++;
     }
     if (s == -1) {
-      return [501, "Langue inconnue"];
+      return [501, "Unknown language"];
     } else {
       return [200, this.list[s].hello];
     }
@@ -55,9 +55,9 @@ class Store {
     }
     if (sup == true) {
       this.list.splice(indice, 1);
-      return [200, "langue supprimée"];
+      return [200, "language deleted"];
     } else {
-      return [500, "Langue inconnue,impossible de la supprimer"];
+      return [500, "Language unknown, can't delete it"];
     }
   }
 }

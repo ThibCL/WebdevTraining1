@@ -8,9 +8,6 @@ const Store = require("./store.js");
 const koa = require("koa");
 const koaBody = require("koa-body");
 const koaRouter = require("koa-router");
-
-//const render = require("koa-ejs");
-const path = require("path");
 const { createLogger, format, transports } = require("winston");
 
 //Const variables
@@ -29,16 +26,7 @@ const logger = createLogger({
 let list = [];
 let str = new Store();
 
-//That was the part for the views but I think we don't have to use it
-/*render(app, {
-  root: path.join(__dirname, "views"),
-  layout: false,
-  viewExt: "html",
-  cache: false,
-  debug: true
-});*/
-
-//Methode get qui permet de dire bonjour dans la langue voulue
+//Request get that give you the way to say hello in any language
 router.get("koala", "/hello", ctx => {
   let lg = ctx.request.query.langue;
   let rep = str.getHello(lg);
@@ -48,17 +36,7 @@ router.get("koala", "/hello", ctx => {
   return ctx;
 });
 
-//Méthode get pour récupérer la page d'ajout d'une langue
-/*router.get("koala", "/formulaire", ctx => {
-  return ctx.render("formulaire");
-});*/
-
-//Méthode get pour récupérer la page de suppression d'une langue
-/*router.get("koala", "/suppression", ctx => {
-  return ctx.render("suppression");
-});*/
-
-//Méthode post qui permet d'apprendre une nouvelle langue
+//Request post to add new language
 router.post("koala", "/hello", koaBody(), ctx => {
   let rep = str.addHello(ctx.request.body.langue, ctx.request.body.hello);
   ctx.response.status = rep[0];
@@ -66,7 +44,7 @@ router.post("koala", "/hello", koaBody(), ctx => {
   return ctx;
 });
 
-//Méthode post qui permet de supprimer une langue
+//Request delete to delete one of the language
 router.delete("koala", "/hello", ctx => {
   let lg = ctx.request.query.langue;
   let rep = str.deleteHello(lg);
@@ -76,5 +54,4 @@ router.delete("koala", "/hello", ctx => {
 });
 
 app.use(router.routes()).use(router.allowedMethods());
-
 app.listen(1234);
