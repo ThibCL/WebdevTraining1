@@ -1,65 +1,36 @@
-//this function checks if a language is already in the list
-function dansListe(lister, lgs) {
-  let res = true;
-  for (let k = 0; k < lister.length; k++) {
-    if (lister[k].langue == lgs) {
-      res = false;
-    }
-  }
-  return res;
-}
-
 class Store {
   constructor() {
-    this.list = [];
+    this.list = {};
   }
 
   addHello(lang, hello) {
-    if (dansListe(this.list, lang)) {
-      this.list.push({
-        langue: lang,
-        hello: hello
-      });
-      return [200, "language added"];
+    if (lang in this.list) {
+      return { statuscode: 500, message: "Language already known" };
     } else {
-      return [500, "language already known"];
+      this.list.lang = hello;
+      return { statuscode: 200, message: "Language added" };
     }
   }
 
   getHello(lang) {
-    let i = 0;
-    let s = -1;
-    while (i < this.list.length) {
-      if (this.list[i].langue == lang) {
-        s = i;
-      }
-      i++;
-    }
-    if (s == -1) {
-      return [501, "Unknown language"];
+    if (this.list.lang == undefined) {
+      return { statuscode: 501, message: "Unknown language" };
     } else {
-      return [200, this.list[s].hello];
+      return { statuscode: 200, message: this.list.lang };
     }
   }
 
   deleteHello(lang) {
-    let j = 0;
-    let indice = 0;
-    let sup = false;
-    while (j < this.list.length) {
-      if (this.list[j].langue == lang) {
-        indice = j;
-        sup = true;
-      }
-      j++;
-    }
-    if (sup == true) {
-      this.list.splice(indice, 1);
-      return [200, "language deleted"];
+    if (lang in this.list) {
+      delete this.list.lang;
+      return { statuscode: 200, message: "Language deleted" };
     } else {
-      return [500, "Language unknown, can't delete it"];
+      return { statuscode: 500, message: "Language unknown, can't delete it " };
     }
   }
 }
 
-module.exports = Store;
+//list which contains all the language know by the server
+const str = new Store();
+
+module.exports = str;
