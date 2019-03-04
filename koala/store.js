@@ -5,28 +5,23 @@ class Store {
 
   addHello(lang, hello) {
     if (lang in this.list) {
-      return { statuscode: 500, message: "Language already known" };
+      return {
+        statuscode: 400,
+        message: "Language already known"
+      };
     } else {
-      this.list.lang = hello;
+      this.list[lang] = hello;
       return { statuscode: 200, message: "Language added" };
     }
   }
 
   getHello(lang) {
-    if (this.list.lang == undefined) {
-      return { statuscode: 501, message: "Unknown language" };
-    } else {
-      return { statuscode: 200, message: this.list.lang };
-    }
+    return { statuscode: 200, message: this.list[lang] };
   }
 
   deleteHello(lang) {
-    if (lang in this.list) {
-      delete this.list.lang;
-      return { statuscode: 200, message: "Language deleted" };
-    } else {
-      return { statuscode: 500, message: "Language unknown, can't delete it " };
-    }
+    delete this.list[lang];
+    return { statuscode: 200, message: "Language deleted" };
   }
 }
 
