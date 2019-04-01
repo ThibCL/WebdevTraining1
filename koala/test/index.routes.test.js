@@ -21,7 +21,7 @@ describe("routes: index", () => {
     expect(resp2.text).toEqual("Language added");
   });
 
-  test("testof the post with langage already added", async () => {
+  test("test of the post with langage already added", async () => {
     eng = {
       langue: "en",
       hello: "hello"
@@ -48,7 +48,7 @@ describe("routes: index", () => {
   test("Get request with error", async () => {
     const response = await request(server).get("/hello?langue=en");
     expect(response.status).toEqual(400);
-    expect(response.text).toEqual("The langage does not exist");
+    expect(response.text).toEqual("The langage request is not allowed");
   });
 
   test("test of error in the post", async () => {
@@ -60,12 +60,12 @@ describe("routes: index", () => {
       .post("/hello")
       .send(eng);
     expect(resp2.status).toEqual(400);
-    expect(resp2.text).toEqual("The langage should be two letter");
+    expect(resp2.text).toEqual("The langage request is not allowed");
   });
 
   test("Delete request", async () => {
     const response = await request(server).delete("/hello?langue=en");
     expect(response.status).toEqual(400);
-    expect(response.text).toEqual("The langage does not exist");
+    expect(response.text).toEqual("The langage request is not allowed");
   });
 });

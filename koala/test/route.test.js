@@ -10,8 +10,18 @@ describe("route test", () => {
 
   test("test of schemavalidation function", () => {
     let lang = "eng";
-    expect(fonct.schemaValidation(lang)).toThrow(
-      "The langage should be two letter"
-    );
+    expect(fonct.schemaValidation(lang)).toEqual(false);
+  });
+
+  test("test of validateExistence function", () => {
+    let lang = "en";
+    expect(fonct.validateExistence(lang)).toEqual(true);
+  });
+
+  test("test of error validateExistence function", () => {
+    let lang = "xx";
+    expect(fonct.validateExistence(lang)).toEqual(false);
   });
 });
+
+//faker pour les tests!

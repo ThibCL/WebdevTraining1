@@ -4,6 +4,7 @@ const router = new koaRouter();
 const str = require("./store.js");
 const koaBody = require("koa-body");
 const logger = require("./logger.js");
+const ISO6391 = require("iso-639-1");
 
 //Validation function for request
 function formating(data) {
@@ -11,28 +12,49 @@ function formating(data) {
 }
 
 function schemaValidation(data) {
+  verif = true;
   if (data.length != 2 || data.toLowerCase() != data) {
-    throw new SyntaxError("The langage should be two letter");
+    verif = false;
   }
+  return verif;
 }
 
 function dataValidation(data) {
+  verif = true;
   if (str.list[data] == undefined) {
-    throw new Error("The langage does not exist");
+    verif = false;
   }
+  return verif;
 }
+
+function validateExistence(lang) {
+  return ISO6391.validate(`${lang}`);
+}
+//Maybe validate if the parameter langue in the request existe
 
 //Request get that give you the way to say hello in any language
 router.get("koala", "/hello", ctx => {
   let lg = formating(ctx.request.query.langue);
   try {
-    schemaValidation(lg);
-    dataValidation(lg);
+    //faire plusieurs if pour changer le message?
+
+    if (
+      !schemaValidation(lg) ||
+      !dataValidation(lg) ||
+      !validateExistence(lg)
+    ) {
+      logger.info("On rendre dans l'errer de validation");
+      ctx.response.status = 400;
+      ctx.response.body = "The langage request is not allowed";
+      return ctx;
+    }
+
     let rep = str.getHello(lg);
     ctx.response.status = rep.statuscode;
     ctx.response.body = rep.message;
   } catch (er) {
-    ctx.response.status = 400;
+    //try et catch erreur pas maitrisé
+    ctx.response.status = 500;
     ctx.response.body = er.message;
   }
 
@@ -43,30 +65,44 @@ router.get("koala", "/hello", ctx => {
 router.post("koala", "/hello", koaBody(), ctx => {
   try {
     let lg = formating(ctx.request.body.langue);
-    schemaValidation(lg);
+    if (!schemaValidation(lg) || !validateExistence(lg)) {
+      logger.info("On rendre dans l'errer de validation");
+      ctx.response.status = 400;
+      ctx.response.body = "The langage request is not allowed";
+      return ctx;
+    }
     let hello = ctx.request.body.hello;
     let rep = str.addHello(lg, hello);
     ctx.response.status = rep.statuscode;
     ctx.response.body = rep.message;
   } catch (er) {
-    ctx.response.status = 400;
+    ctx.response.status = 500;
     ctx.response.body = er.message;
   }
 
   return ctx;
 });
+//put diff post mais post générique
 
 //Request delete to delete one of the language
 router.delete("koala", "/hello", ctx => {
   try {
     let lg = formating(ctx.request.query.langue);
-    schemaValidation(lg);
-    dataValidation(lg);
+    if (
+      !schemaValidation(lg) ||
+      !dataValidation(lg) ||
+      !validateExistence(lg)
+    ) {
+      logger.info("On rendre dans l'errer de validation");
+      ctx.response.status = 400;
+      ctx.response.body = "The langage request is not allowed";
+      return ctx;
+    }
     let rep = str.deleteHello(lg);
     ctx.response.status = rep.statuscode;
     ctx.response.body = rep.message;
   } catch (er) {
-    ctx.response.status = 400;
+    ctx.response.status = 500;
     ctx.response.body = er.message;
   }
 
@@ -78,6 +114,7 @@ module.exports = {
   function: {
     formating: formating,
     dataValidation: dataValidation,
-    schemaValidation: schemaValidation
+    schemaValidation: schemaValidation,
+    validateExistence: validateExistence
   }
 };
